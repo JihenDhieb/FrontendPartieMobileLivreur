@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'Compte.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -70,6 +71,20 @@ class _LoginPageState extends State<LoginPage> {
             'email': email,
           }),
         );
+        if (response.statusCode == 200) {
+          final userResponse = await http.get(
+            Uri.parse('http://192.168.1.26:8080/User/$id'),
+            headers: <String, String>{
+              'Authorization': 'Bearer $token',
+            },
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => Compte(),
+            ),
+          );
+        }
         print(token);
       });
     } else {
