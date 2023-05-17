@@ -5,69 +5,12 @@
     "storage_bucket": "ecommerceapp-b350a.appspot.com"
   },
   "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:851919400239:android:4e637fcc7db85df74a85da",
-        "android_client_info": {
-          "package_name": "com.example.appcommerce"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "851919400239-gmqsprrbhe54h30ij2tt0ukcg7s04vgq.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBFn2BDdec3cLWFY0Y5S-WQfcQ3DMeyEOA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "851919400239-gmqsprrbhe54h30ij2tt0ukcg7s04vgq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
+   
     {
       "client_info": {
         "mobilesdk_app_id": "1:851919400239:android:608f1b568d4b71ad4a85da",
         "android_client_info": {
           "package_name": "com.example.delivery"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "851919400239-gmqsprrbhe54h30ij2tt0ukcg7s04vgq.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBFn2BDdec3cLWFY0Y5S-WQfcQ3DMeyEOA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "851919400239-gmqsprrbhe54h30ij2tt0ukcg7s04vgq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:851919400239:android:a90902b667e8ecc74a85da",
-        "android_client_info": {
-          "package_name": "com.example.khra"
         }
       },
       "oauth_client": [

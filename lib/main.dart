@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'Notification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,9 +11,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     FirebaseMessaging.instance.getInitialMessage().then((message) {
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         print("Received initial message: ${message.notification!.title}");
       }
     });
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         print("Received foreground message: ${message.notification!.title}");
@@ -31,6 +33,8 @@ class MyApp extends StatelessWidget {
       if (message.notification != null) {
         print(
             "Opened app from terminated state: ${message.notification!.title}");
+       MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
+            arguments: message.data["idCaisse"]);
       }
     });
 
@@ -39,9 +43,15 @@ class MyApp extends StatelessWidget {
     });
 
     FirebaseMessaging.instance.setAutoInitEnabled(true);
+
     return MaterialApp(
+      navigatorKey: navigatorKey, // Set the navigatorKey
       routes: {
         '/': (context) => Welcome(),
+         '/notification': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as String?;
+          return NotificationPage(idCaisse: args ?? '');
+        },
       },
       initialRoute: '/',
     );

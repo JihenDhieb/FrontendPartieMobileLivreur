@@ -51,15 +51,11 @@ class _LoginPageState extends State<LoginPage> {
       final Map<String, dynamic> responseData = json.decode(response.body);
       final String token = responseData['token'];
       final String id = responseData['id'];
-
       await _prefs.setString('id', id);
-      print('ID: $id');
       await _prefs.setString('email', email);
-      print('Email: $email');
       await _prefs.setString('password', password);
       await _prefs.setString('token', token);
-      print('Token: $token');
-      print('Login Succesfuly');
+
       FirebaseMessaging.instance.getToken().then((token) async {
         final response = await http.post(
           Uri.parse('http://192.168.1.26:8080/notification/addDevice'),
@@ -71,22 +67,19 @@ class _LoginPageState extends State<LoginPage> {
             'email': email,
           }),
         );
-        if (response.statusCode == 200) {
-          final userResponse = await http.get(
-            Uri.parse('http://192.168.1.26:8080/User/$id'),
-            headers: <String, String>{
-              'Authorization': 'Bearer $token',
-            },
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => Compte(),
-            ),
-          );
-        }
-        print(token);
       });
+      final userResponse = await http.get(
+        Uri.parse('http://192.168.1.26:8080/User/$id'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (userResponse.statusCode == 200) {
+        final Map<String, dynamic> userData = json.decode(userResponse.body);
+
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => Compte(userData)));
+      }
     } else {
       print('Login failed.');
       showDialog(
@@ -108,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
