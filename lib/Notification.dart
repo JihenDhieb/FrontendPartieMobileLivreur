@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:delivery/Caisse.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -38,12 +37,17 @@ class NotificationPageState extends State<NotificationPage> {
           'http://192.168.1.26:8080/caisse/addDeliveryToCaisse/$idCaisse1/$id'));
 
       if (!mounted) {
-        return; // Check if the widget is still mounted before updating the state
+        return; 
       }
 
       if (request.statusCode == 200) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (_) => Caisse(idCaisse: idCaisse1)));
+      }
+      final responce = await http
+          .get(Uri.parse('http://192.168.1.26:8080/caisse/SetSold/$idCaisse1'));
+      if (request.statusCode == 200) {
+        print("yesss");
       }
     }
   }
@@ -54,7 +58,7 @@ class NotificationPageState extends State<NotificationPage> {
         .get(Uri.parse('http://192.168.1.26:8080/caisse/getCaisse/$idCaisse1'));
 
     if (!mounted) {
-      return; // Check if the widget is still mounted before updating the state
+      return;
     }
 
     if (request.statusCode == 200) {

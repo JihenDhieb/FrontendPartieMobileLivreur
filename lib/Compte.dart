@@ -2,11 +2,11 @@ import 'package:delivery/Edit.dart';
 import 'package:delivery/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'Edit.dart';
+import 'ListDelivery.dart';
+import 'EditPosition.dart';
 
 class Compte extends StatefulWidget {
   final Map<String, dynamic> userData;
-
   Compte(this.userData);
 
   @override
@@ -68,7 +68,18 @@ class _CompteState extends State<Compte> {
           IconButton(
             icon: Icon(Icons.location_on),
             onPressed: () {
-              // Ajoutez ici la logique pour accéder à la carte ou à la position
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => EditPosition(widget.userData['longitude'],
+                          widget.userData['latitude'])));
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.list_sharp),
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (_) => ListDelivery()));
             },
           ),
         ],
@@ -150,6 +161,15 @@ class _CompteState extends State<Compte> {
                   SizedBox(height: 20),
                   Text(
                     'Solde: ${widget.userData['sold']}',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Revenue: ${widget.userData['revenue']}',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 24,
