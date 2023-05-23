@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'ListDelivery.dart';
 import 'EditPosition.dart';
+import 'Revenue.dart';
 
 class Compte extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -75,14 +76,66 @@ class _CompteState extends State<Compte> {
                           widget.userData['latitude'])));
             },
           ),
-          IconButton(
-            icon: Icon(Icons.list_sharp),
-            onPressed: () {
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (_) => ListDelivery()));
-            },
-          ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              leading: Icon(Icons.list),
+              title: Text(
+                'Delivery List',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 0, 0), // Couleur du texte
+                ),
+              ),
+              tileColor: Colors.grey[200], // Couleur de fond du bouton
+              onTap: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (_) => ListDelivery()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.monetization_on),
+              title: Text(
+                'Revenue',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 0, 0), // Couleur du texte
+                ),
+              ),
+              tileColor: Colors.grey[200],
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyRevenue(userData: {
+                      'revenueDates': widget.userData['revenueDates'],
+                    }),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_balance_wallet),
+              title: Text(
+                'Sold',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 0, 0), // Couleur du texte
+                ),
+              ),
+              tileColor: Colors.grey[200],
+              onTap: () {
+                // Action for "Solde" button
+              },
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
@@ -161,15 +214,6 @@ class _CompteState extends State<Compte> {
                   SizedBox(height: 20),
                   Text(
                     'Solde: ${widget.userData['sold']}',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Revenue: ${widget.userData['revenue']}',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 24,

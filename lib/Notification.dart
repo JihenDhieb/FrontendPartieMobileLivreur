@@ -37,7 +37,7 @@ class NotificationPageState extends State<NotificationPage> {
           'http://192.168.1.26:8080/caisse/addDeliveryToCaisse/$idCaisse1/$id'));
 
       if (!mounted) {
-        return; 
+        return;
       }
 
       if (request.statusCode == 200) {

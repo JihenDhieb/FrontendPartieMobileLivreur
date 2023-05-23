@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:delivery/LoginPage.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Caisse extends StatefulWidget {
   final String idCaisse;
@@ -21,16 +23,24 @@ class CaisseState extends State<Caisse> {
 
   Future<void> _openNotification(BuildContext context) async {
     final String idCaisse1 = widget.idCaisse;
-    final request = await http
-        .get(Uri.parse('http://192.168.1.26:8080/caisse/getCaisse/$idCaisse1'));
+    final request = await http.get(
+      Uri.parse('http://192.168.1.26:8080/caisse/getCaisse/$idCaisse1'),
+    );
+
     if (!mounted) {
       return;
     }
+
     if (request.statusCode == 200) {
+      final sharedPreferences = await SharedPreferences.getInstance();
+
       setState(() {
         CaisseData = json.decode(request.body);
         _getArticles(CaisseData["articles"], context);
       });
+
+      // Store the idCaisse value in local storage
+      sharedPreferences.setString('idCaisse', widget.idCaisse);
     }
   }
 
@@ -121,12 +131,15 @@ class CaisseState extends State<Caisse> {
                   fontSize: 20,
                 ),
               ),
-              Text(
-                'Phone: ${CaisseData['phone']}',
-                style: TextStyle(
+              IconButton(
+                icon: Icon(
+                  Icons.phone,
                   color: Colors.black,
-                  fontSize: 20,
                 ),
+                onPressed: () {
+                  String phoneNumber = CaisseData['phone'];
+                  launch('tel:$phoneNumber');
+                },
               ),
               Text(
                 'Selected Time: ${CaisseData['selectedTime']}',

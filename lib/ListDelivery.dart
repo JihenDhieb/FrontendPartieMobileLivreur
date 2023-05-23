@@ -42,7 +42,7 @@ class ListDeliveryState extends State<ListDelivery> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("List Commandes"),
+          title: Text("Delivery List"),
           backgroundColor: Colors.orange, // ajouter la couleur orange ici
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
