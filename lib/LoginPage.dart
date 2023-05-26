@@ -1,9 +1,10 @@
+import 'package:delivery/Edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'Compte.dart';
+import 'dashbord.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -76,9 +77,13 @@ class _LoginPageState extends State<LoginPage> {
       );
       if (userResponse.statusCode == 200) {
         final Map<String, dynamic> userData = json.decode(userResponse.body);
-
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => Compte(userData)));
+        if (userData['imageProfile'] == null) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => Edit(userData)));
+        } else {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => dashbord(userData)));
+        }
       }
     } else {
       print('Login failed.');
@@ -90,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
             content: Text("Invalid email or password."),
             actions: [
               TextButton(
-                child: Text("OK"),
+                child: Text("OK", style: TextStyle(color: Colors.orange)),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -105,46 +110,90 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 255, 255, 255),
-        body: SafeArea(
-            child: Center(
-                child: SingleChildScrollView(
-                    child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                      fontSize: 50.0,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                    ),
-                                  ),
-                                ],
-                              ),
+      body: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('android/images/3.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).size.height / 2 -
+                    300, // Position verticale centrée
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: 100,
+                  height: 400,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                          'android/images/2.png'), // Remplacez par le chemin d'accès à votre image
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: MediaQuery.of(context).size.height * 0.39,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0),
+                  ),
+                  child: Container(
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Sign In',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 50.0,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              decorationThickness: 2.0,
+                              letterSpacing: 2.0,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.grey,
+                                  blurRadius: 3.0,
+                                  offset: Offset(2.0, 2.0),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
+                          ),
+                        ),
+                        Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
                                 labelText: 'Email',
                                 labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  color: Colors.orange[800],
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 0, 0, 0)!,
+                                    color: Colors.orange[800]!,
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(8.0),
@@ -159,22 +208,25 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                                 return null;
                               },
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
+                            )),
+                        SizedBox(height: 10),
+                        Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: TextFormField(
                               controller: _passwordController,
                               keyboardType: TextInputType.visiblePassword,
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  color: Colors.orange[800],
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 0, 0, 0)!,
+                                    color: Colors.orange[800]!,
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(8.0),
@@ -205,78 +257,64 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                                 return null;
                               },
-                            ),
-                            SizedBox(height: 16.0),
-                            Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            )),
+                        SizedBox(height: 20),
+                        Container(
+                          width: 250, // Largeur personnalisée
+                          height: 70,
+                          // Hauteur personnalisée
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30.0),
+                            color: Color(0xFFFF9800), // Couleur orange
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              _login();
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  SizedBox(
-                                    height: 70,
-                                    width: 300,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color.fromARGB(255, 0, 225, 255),
-                                            Color.fromARGB(255, 255, 59, 59)
-                                          ], // Couleurs du dégradé
+                                  SizedBox(width: 5.0),
+                                  Text(
+                                    'Login ',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25.0,
+                                      fontWeight: FontWeight
+                                          .bold, // Style de police en gras
+                                      fontStyle: FontStyle
+                                          .italic, // Style d'écriture en italique
+                                      // Couleur du soulignement
+                                      decorationThickness:
+                                          2.0, // Épaisseur du soulignement
+                                      letterSpacing:
+                                          2.0, // Espacement entre les lettres
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.grey,
+                                          blurRadius: 3.0,
+                                          offset: Offset(2.0, 2.0),
                                         ),
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            _login();
-                                          }
-                                        },
-                                        child: Text('Login'),
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Colors
-                                              .transparent, // Couleur transparente pour le bouton
-                                          shadowColor: Colors
-                                              .transparent, // Couleur transparente pour l'ombre
-                                          elevation:
-                                              0, // Désactive l'ombre du bouton
-                                        ),
-                                      ),
+                                      ], // Ombre du texte
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 50),
-                            Center(
-                              child: Text(
-                                'Have An Account?',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: () {},
-                                style: ButtonStyle(
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    StadiumBorder(),
-                                  ),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Sign Up',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ))))));
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

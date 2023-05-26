@@ -96,6 +96,7 @@ class EditPositionState extends State<EditPosition> {
                 ),
               );
             }),
+        backgroundColor: Colors.orange,
       ),
       body: GoogleMap(
         onMapCreated: _onMapCreated,
@@ -114,6 +115,7 @@ class EditPositionState extends State<EditPosition> {
             _submitForm();
           }
         },
+        backgroundColor: Colors.orange,
         child: Icon(Icons.save),
       ),
     );

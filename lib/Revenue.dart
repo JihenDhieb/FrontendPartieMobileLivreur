@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,12 +34,10 @@ class MyRevenueState extends State<MyRevenue> {
     Colors.purple,
     Colors.red, // Add more colors if needed
   ];
-
   @override
   void initState() {
     super.initState();
     List<dynamic> revenuesDates = widget.userData['revenueDates'];
-    print(revenuesDates);
     // Convert data into BarChartModel objects
     data = revenuesDates.map((item) {
       DateTime date = DateTime.parse(item['date']);

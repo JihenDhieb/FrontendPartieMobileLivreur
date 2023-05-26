@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'Compte.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class Edit extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  Edit({required this.userData});
+  Edit(this.userData);
   @override
   _EditState createState() => _EditState();
 }
 
 class _EditState extends State<Edit> {
+  File? imageProfile;
+
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
@@ -65,12 +69,19 @@ class _EditState extends State<Edit> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => LoginPage()),
-        );
+        String id = widget.userData['id'];
+        final request = http.MultipartRequest('POST',
+            Uri.parse('http://192.168.1.26:8080/User/addImagesToUser/$id'));
 
-        // If update is successful, navigate back to Compte widget
+        var imageProfile1 = await http.MultipartFile.fromPath(
+            'imageProfile', imageProfile!.path);
+        request.files.add(imageProfile1);
+
+        var responsee = await request.send();
+        if (responsee.statusCode == 200) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => LoginPage()));
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User details updated')),
@@ -110,14 +121,28 @@ class _EditState extends State<Edit> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _pickProfileImage() async {
+      try {
+        final imageFile =
+            await ImagePicker().getImage(source: ImageSource.gallery);
+        if (imageFile != null) {
+          setState(() {
+            imageProfile = File(imageFile.path);
+          });
+        }
+      } catch (e) {
+        print('Error selecting profile image: $e');
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit User'),
         leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (_) => LoginPage()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) => Compte(widget.userData)));
             }),
         backgroundColor: Colors.orange,
       ),
@@ -222,6 +247,37 @@ class _EditState extends State<Edit> {
                   }
                   return null;
                 },
+              ),
+              SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _pickProfileImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[300],
+                      child: imageProfile != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.file(
+                                imageProfile!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Container(
+                              width: 100,
+                              height: 100,
+                              child: Icon(
+                                Icons.camera_alt,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 16.0),
               ElevatedButton(
