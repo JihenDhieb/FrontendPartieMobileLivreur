@@ -88,7 +88,7 @@ class NotificationPageState extends State<NotificationPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                primary: Colors.green, // Couleur de fond du bouton
+                primary: Colors.orange, // Couleur de fond du bouton
               ),
             ),
             SizedBox(height: 20), // Espacement entre les boutons
@@ -103,7 +103,7 @@ class NotificationPageState extends State<NotificationPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                primary: Colors.red, // Couleur de fond du bouton
+                primary: Colors.orange, // Couleur de fond du bouton
               ),
             ),
           ],

@@ -105,77 +105,130 @@ class CaisseState extends State<Caisse> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(70),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Information Client',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    '${CaisseData['reference']}',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
               ),
-              Text(
-                'Address: ${CaisseData['address']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'Information Client',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
-              Text(
-                'Street Address: ${CaisseData['streetAddress']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Address: ${CaisseData['address']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.phone,
-                  color: Colors.black,
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Street Address: ${CaisseData['streetAddress']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
-                onPressed: () {
-                  String phoneNumber = CaisseData['phone'];
-                  launch('tel:$phoneNumber');
-                },
               ),
-              Text(
-                'Selected Time: ${CaisseData['selectedTime']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        String phoneNumber = CaisseData['phone'];
+                        launch('tel:$phoneNumber');
+                      },
+                      child: Icon(
+                        Icons.phone,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '${CaisseData['phone'][0]}${'*' * (CaisseData['phone'].length - 1)}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Selected Time: ${CaisseData['selectedTime']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
               SizedBox(height: 16),
-              Text(
-                'Price',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'Price',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
-              Text(
-                'Subtotal: ${CaisseData['subTotal']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Subtotal: ${CaisseData['subTotal']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
-              Text(
-                'Frais: ${CaisseData['frais']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Frais: ${CaisseData['frais']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
-              Text(
-                'Total Price: ${CaisseData['totalPrice']}',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'Total Price: ${CaisseData['totalPrice']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
               SizedBox(height: 16),
@@ -187,17 +240,36 @@ class CaisseState extends State<Caisse> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Name Vendor: ${page['title']}',
+              SizedBox(height: 16),
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Name Vendor: ${page['title']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Phone Vendor: ${page['phone']}',
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Phone: ${page['phone']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Address Vendor: ${page['address']}',
+              Container(
+                margin: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Address: ${page['address']}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
               ),
               Visibility(
                 visible: CaisseData['status'] == 'IN_PREPARATION',

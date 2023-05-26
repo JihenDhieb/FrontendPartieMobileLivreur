@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'LoginPage.dart';
 
@@ -25,25 +24,47 @@ class MyRevenue extends StatefulWidget {
 
 class MyRevenueState extends State<MyRevenue> {
   List<BarChartModel> data = [];
-
   List<Color> chartColors = [
-    Color.fromARGB(255, 120, 123, 193),
-
     Colors.green,
+    Colors.red,
+    Color.fromARGB(255, 120, 123, 193),
     Colors.orange,
-    Colors.purple,
-    Colors.red, // Add more colors if needed
+    Colors.purple, // Add more colors if needed
   ];
+  String selectedFilter = 'Day';
+
+  List<BarChartModel> dayData = [];
+  List<BarChartModel> weekData = [];
+  List<BarChartModel> monthData = [];
+
   @override
   void initState() {
     super.initState();
     List<dynamic> revenuesDates = widget.userData['revenueDates'];
-    // Convert data into BarChartModel objects
-    data = revenuesDates.map((item) {
+    // Convert data into BarChartModel objects for each option
+    dayData = revenuesDates.map((item) {
       DateTime date = DateTime.parse(item['date']);
       double revenue = double.parse(item['revenue'].toString());
       return BarChartModel(date, revenue);
     }).toList();
+    // Apply filters to weekData and monthData accordingly
+
+    // Set the initial data based on the selected filter
+    setDataByFilter(selectedFilter);
+  }
+
+  void setDataByFilter(String filter) {
+    setState(() {
+      selectedFilter = filter;
+      // Update data based on the selected filter
+      if (selectedFilter == 'Day') {
+        data = dayData;
+      } else if (selectedFilter == 'Week') {
+        data = weekData;
+      } else if (selectedFilter == 'Month') {
+        data = monthData;
+      }
+    });
   }
 
   @override
@@ -64,15 +85,15 @@ class MyRevenueState extends State<MyRevenue> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Revenue"),
+        title: const Text("Earnings"),
         centerTitle: true,
-        backgroundColor: Colors.green[700],
+        backgroundColor: Colors.orange,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => LoginPage()),
+              MaterialPageRoute(builder: (_) => dashbord(widget.userData)),
             );
           },
         ),
@@ -81,21 +102,43 @@ class MyRevenueState extends State<MyRevenue> {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
         child: Column(
           children: [
-            Text(
-              'Revenue Dates:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text('Revenue: ${data[index].revenue}'),
-                    subtitle: Text('Date: ${data[index].date}'),
-                  );
-                },
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () => setDataByFilter('Day'),
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        selectedFilter == 'Day' ? Colors.orange : Colors.grey,
+                  ),
+                  child: Text(
+                    'Day',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setDataByFilter('Week'),
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        selectedFilter == 'Week' ? Colors.orange : Colors.grey,
+                  ),
+                  child: Text(
+                    'Week',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setDataByFilter('Month'),
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        selectedFilter == 'Month' ? Colors.orange : Colors.grey,
+                  ),
+                  child: Text(
+                    'Month',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             Expanded(
