@@ -2,22 +2,19 @@ import 'dart:convert';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-
-import 'LoginPage.dart';
 
 class BarChartModel {
   final DateTime date;
   final double revenue;
-
   BarChartModel(this.date, this.revenue);
 }
 
 class MyRevenue extends StatefulWidget {
   final Map<String, dynamic> userData;
-
   MyRevenue({required this.userData});
-
   @override
   MyRevenueState createState() => MyRevenueState();
 }
@@ -27,44 +24,49 @@ class MyRevenueState extends State<MyRevenue> {
   List<Color> chartColors = [
     Colors.green,
     Colors.red,
-    Color.fromARGB(255, 120, 123, 193),
     Colors.orange,
-    Colors.purple, // Add more colors if needed
+    Colors.purple,
   ];
   String selectedFilter = 'Day';
 
-  List<BarChartModel> dayData = [];
-  List<BarChartModel> weekData = [];
-  List<BarChartModel> monthData = [];
+  Future<void> displayDataFromBackend() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString('id');
+    final response = await http.get(
+      Uri.parse('http://192.168.1.26:8080/User/todayRevenue/$id'),
+    );
+
+    if (response.statusCode == 200) {
+      if (response.body.isEmpty) {
+        print('Empty response body');
+        return;
+      }
+
+      Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData.containsKey('revenue') &&
+          responseData.containsKey('date')) {
+        dynamic revenue = responseData['revenue'];
+        dynamic date = responseData['date'];
+
+        DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
+        double parsedRevenue = double.tryParse(revenue.toString()) ?? 0.0;
+
+        BarChartModel barChartData = BarChartModel(parsedDate, parsedRevenue);
+
+        setState(() {
+          data = [barChartData];
+        });
+      } else {
+        print('Invalid or missing "revenue" or "date" in the response');
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    List<dynamic> revenuesDates = widget.userData['revenueDates'];
-    // Convert data into BarChartModel objects for each option
-    dayData = revenuesDates.map((item) {
-      DateTime date = DateTime.parse(item['date']);
-      double revenue = double.parse(item['revenue'].toString());
-      return BarChartModel(date, revenue);
-    }).toList();
-    // Apply filters to weekData and monthData accordingly
-
-    // Set the initial data based on the selected filter
-    setDataByFilter(selectedFilter);
-  }
-
-  void setDataByFilter(String filter) {
-    setState(() {
-      selectedFilter = filter;
-      // Update data based on the selected filter
-      if (selectedFilter == 'Day') {
-        data = dayData;
-      } else if (selectedFilter == 'Week') {
-        data = weekData;
-      } else if (selectedFilter == 'Month') {
-        data = monthData;
-      }
-    });
+    displayDataFromBackend();
   }
 
   @override
@@ -102,44 +104,6 @@ class MyRevenueState extends State<MyRevenue> {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  onPressed: () => setDataByFilter('Day'),
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        selectedFilter == 'Day' ? Colors.orange : Colors.grey,
-                  ),
-                  child: Text(
-                    'Day',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => setDataByFilter('Week'),
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        selectedFilter == 'Week' ? Colors.orange : Colors.grey,
-                  ),
-                  child: Text(
-                    'Week',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => setDataByFilter('Month'),
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        selectedFilter == 'Month' ? Colors.orange : Colors.grey,
-                  ),
-                  child: Text(
-                    'Month',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
             SizedBox(height: 20),
             Expanded(
               child: charts.BarChart(
