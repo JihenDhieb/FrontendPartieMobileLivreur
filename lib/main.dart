@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       if (message.notification != null) {
         print(
             "Opened app from terminated state: ${message.notification!.title}");
-       MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
+        MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
             arguments: message.data["idCaisse"]);
       }
     });
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey, // Set the navigatorKey
       routes: {
         '/': (context) => Welcome(),
-         '/notification': (context) {
+        '/notification': (context) {
           final args = ModalRoute.of(context)?.settings.arguments as String?;
           return NotificationPage(idCaisse: args ?? '');
         },

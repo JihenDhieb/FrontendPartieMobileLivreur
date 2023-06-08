@@ -8,7 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ListDelivery.dart';
 import 'EditPosition.dart';
-import 'Revenue.dart';
+import 'LiveLocation.dart';
+import 'RevenueDay.dart';
 
 class Compte extends StatefulWidget {
   late Map<dynamic, dynamic> imageProfile;
@@ -269,9 +270,8 @@ class _CompteState extends State<Compte> {
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (_) => EditPosition(
-                                                widget.userData['longitude'],
-                                                widget.userData['latitude'])));
+                                            builder: (_) =>
+                                                LiveLocationPage()));
                                   },
                                   style: ButtonStyle(
                                     backgroundColor:

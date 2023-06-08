@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'ListDelivery.dart';
 import 'LoginPage.dart';
-import 'Revenue.dart';
+import 'RevenueDay.dart';
 import 'dart:convert';
 
 class dashbord extends StatefulWidget {
@@ -311,6 +311,7 @@ class _dashbordState extends State<dashbord> {
                 ],
               ),
             ),
+
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Stack(
@@ -362,7 +363,6 @@ class _dashbordState extends State<dashbord> {
                 ],
               ),
             ),
-
             // Définir la largeur souhaitée
             Card(
               shape: RoundedRectangleBorder(

@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:delivery/RevenueWeek.dart';
 import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:delivery/RevenueMonth.dart';
 
 class BarChartModel {
   final DateTime date;
@@ -98,6 +100,51 @@ class MyRevenueState extends State<MyRevenue> {
               MaterialPageRoute(builder: (_) => dashbord(widget.userData)),
             );
           },
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              title: Text('Day'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyRevenue(userData: {
+                      'revenueDates': widget.userData['revenueDates'],
+                    }),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Week'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyRevenueWeek(userData: {
+                      'revenueDates': widget.userData['revenueDates'],
+                    }),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Month'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MyRevenueMonth(userData: {
+                      'revenueDates': widget.userData['revenueDates'],
+                    }),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
       body: Container(

@@ -77,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
       );
       if (userResponse.statusCode == 200) {
         final Map<String, dynamic> userData = json.decode(userResponse.body);
+
         if (userData['imageProfile'] == null) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => Edit(userData)));
