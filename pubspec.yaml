@@ -43,6 +43,7 @@ dependencies:
   url_launcher: ^6.0.0
   image_picker: ^0.8.4+3
   permission_handler: ^10.2.0
+  flutter_background_service: ^0.1.4
   
 
   

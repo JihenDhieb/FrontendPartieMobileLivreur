@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'Welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'Notification.dart';
+import 'LocationService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  final LocationService locationService = LocationService();
+  locationService.initState();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+  final LocationService _locationService = LocationService();
 
   @override
   Widget build(BuildContext context) {
+    _locationService.getCurrentLocation();
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null && message.notification != null) {
         print("Received initial message: ${message.notification!.title}");

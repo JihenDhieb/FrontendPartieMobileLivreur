@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
@@ -12,15 +13,34 @@ class LocationService {
   Set<Marker> _markers = {};
 
   void initState() {
-    _locationService.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-    );
-    _locationService.onLocationChanged.listen((LocationData result) {
+    startBackgroundService();
+    _getCurrentLocation();
+  }
+
+  void startBackgroundService() {
+    FlutterBackgroundService.initialize(onStart);
+  }
+
+  void onStart() {
+    Location().onLocationChanged.listen((LocationData result) {
       _currentLocation = result;
       _updateCameraPosition();
     });
+
     _getCurrentLocation();
+
+    Timer.periodic(Duration(seconds: 60), (timer) {
+      _getCurrentLocation();
+    });
+
+    FlutterBackgroundService().onDataReceived.listen((event) {
+      if (event != null && event['action'] == 'stopService') {
+        FlutterBackgroundService().sendData({'action': 'serviceStopped'});
+        FlutterBackgroundService().stopBackgroundService();
+      }
+    });
+
+    FlutterBackgroundService().sendData({'action': 'serviceRunning'});
   }
 
   void _getCurrentLocation() async {
@@ -41,7 +61,7 @@ class LocationService {
     _mapController.complete(controller);
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
     final response = await http.put(
@@ -67,6 +87,7 @@ class LocationService {
       _mapController.future.then((controller) {
         controller.animateCamera(CameraUpdate.newLatLng(currentPosition));
       });
+
       _markers.clear();
       _markers.add(
         Marker(
@@ -74,8 +95,9 @@ class LocationService {
           position: currentPosition,
         ),
       );
-      _submitForm();
     }
+    _submitForm();
+    print(_currentLocation.latitude);
   }
 
   Future<GoogleMapController> getMapController() {
