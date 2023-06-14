@@ -1,3 +1,4 @@
+import 'package:delivery/Compte.dart';
 import 'package:delivery/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -5,7 +6,8 @@ import 'LocationService.dart';
 
 class LiveLocationPage extends StatelessWidget {
   final LocationService _locationService = LocationService();
-
+  final dynamic userData;
+  LiveLocationPage({required this.userData});
   @override
   Widget build(BuildContext context) {
     _locationService.initState();
@@ -17,7 +19,7 @@ class LiveLocationPage extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => LoginPage()),
+              MaterialPageRoute(builder: (_) => Compte(userData)),
             );
           },
         ),

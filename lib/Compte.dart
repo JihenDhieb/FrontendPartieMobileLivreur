@@ -1,15 +1,9 @@
 import 'dart:convert';
 import 'package:delivery/Edit.dart';
-import 'package:delivery/LoginPage.dart';
 import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'ListDelivery.dart';
-import 'EditPosition.dart';
 import 'LiveLocation.dart';
-import 'RevenueDay.dart';
 
 class Compte extends StatefulWidget {
   late Map<dynamic, dynamic> imageProfile;
@@ -270,8 +264,8 @@ class _CompteState extends State<Compte> {
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (_) =>
-                                                LiveLocationPage()));
+                                            builder: (_) => LiveLocationPage(
+                                                userData: widget.userData)));
                                   },
                                   style: ButtonStyle(
                                     backgroundColor:

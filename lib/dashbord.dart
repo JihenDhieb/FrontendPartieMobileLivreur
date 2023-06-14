@@ -114,7 +114,10 @@ class _dashbordState extends State<dashbord> {
               title: Text('My Delivery'),
               onTap: () {
                 Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (_) => ListDelivery()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            ListDelivery(userData: widget.userData)));
               },
             ),
             ListTile(
@@ -443,8 +446,11 @@ class _dashbordState extends State<dashbord> {
                     IconButton(
                       icon: Icon(Icons.local_shipping, color: Colors.grey),
                       onPressed: () {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (_) => ListDelivery()));
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    ListDelivery(userData: widget.userData)));
                       },
                     ),
                   ],
