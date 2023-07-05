@@ -1,10 +1,11 @@
-import 'package:delivery/Edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashbord.dart';
+import 'LocationService.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   late SharedPreferences _prefs;
   bool _obscureText = true;
-
+  final LocationService _locationService = LocationService();
   @override
   void initState() {
     super.initState();
@@ -29,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
         _emailController.text = email;
         _passwordController.text = password;
         _login();
+        _locationService.initState();
       }
     });
   }
@@ -36,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
-
     final response = await http.post(
       Uri.parse('http://192.168.1.26:8080/api/auth/loginUser'),
       headers: <String, String>{
@@ -47,7 +48,6 @@ class _LoginPageState extends State<LoginPage> {
         'password': password,
       }),
     );
-
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
       final String token = responseData['token'];
@@ -56,7 +56,6 @@ class _LoginPageState extends State<LoginPage> {
       await _prefs.setString('email', email);
       await _prefs.setString('password', password);
       await _prefs.setString('token', token);
-
       FirebaseMessaging.instance.getToken().then((token) async {
         final response = await http.post(
           Uri.parse('http://192.168.1.26:8080/notification/addDevice'),
@@ -76,15 +75,12 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
       if (userResponse.statusCode == 200) {
+        final LocationService _locationService = LocationService();
+        _locationService.getCurrentLocation();
+        _locationService.submitForm();
         final Map<String, dynamic> userData = json.decode(userResponse.body);
-
-        if (userData['imageProfile'] == null) {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => Edit(userData)));
-        } else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => dashbord(userData)));
-        }
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => dashbord(userData)));
       }
     } else {
       print('Login failed.');
@@ -92,8 +88,8 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Error"),
-            content: Text("Invalid email or password."),
+            title: Text("Erreur"),
+            content: Text("Adresse e-mail ou mot de passe invalide."),
             actions: [
               TextButton(
                 child: Text("OK", style: TextStyle(color: Colors.orange)),
@@ -126,8 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height / 2 -
-                    300, // Position verticale centrée
+                top: MediaQuery.of(context).size.height / 2 - 300,
                 left: 0,
                 right: 0,
                 child: Container(
@@ -135,8 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 400,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(
-                          'android/images/2.png'), // Remplacez par le chemin d'accès à votre image
+                      image: AssetImage('android/images/2.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -159,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'Sign In',
+                            'Connexion',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
@@ -179,94 +173,91 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                labelStyle: TextStyle(
-                                  color: Colors.orange[800],
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.orange[800]!,
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              labelStyle: TextStyle(
+                                color: Colors.orange[800],
                               ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter your email address';
-                                }
-                                if (!value.contains('@')) {
-                                  return 'Please enter a valid email address';
-                                }
-                                return null;
-                              },
-                            )),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.orange[800]!,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Veuillez entrer votre adresse e-mail';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Veuillez entrer une adresse e-mail valide';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: TextFormField(
-                              controller: _passwordController,
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                labelStyle: TextStyle(
-                                  color: Colors.orange[800],
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: TextFormField(
+                            controller: _passwordController,
+                            keyboardType: TextInputType.visiblePassword,
+                            decoration: InputDecoration(
+                              labelText: 'Mot de passe',
+                              labelStyle: TextStyle(
+                                color: Colors.orange[800],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.orange[800]!,
+                                  width: 2.0,
                                 ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.orange[800]!,
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscureText =
-                                          !_obscureText; // toggle password visibility
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _obscureText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: Colors.grey,
-                                  ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                                icon: Icon(
+                                  _obscureText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.grey,
                                 ),
                               ),
-                              obscureText:
-                                  _obscureText, // use _obscureText variable to determine password visibility
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                if (value.length < 8) {
-                                  return 'The password must contain at least 8 characters';
-                                }
-                                return null;
-                              },
-                            )),
+                            ),
+                            obscureText: _obscureText,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Veuillez entrer votre mot de passe';
+                              }
+                              if (value.length < 8) {
+                                return 'Le mot de passe doit contenir au moins 8 caractères';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
                         SizedBox(height: 20),
                         Container(
-                          width: 250, // Largeur personnalisée
+                          width: 250,
                           height: 70,
-                          // Hauteur personnalisée
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30.0),
-                            color: Color(0xFFFF9800), // Couleur orange
+                            color: Color(0xFFFF9800),
                           ),
                           child: TextButton(
                             onPressed: () {
@@ -280,26 +271,21 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   SizedBox(width: 5.0),
                                   Text(
-                                    'Login ',
+                                    'Se connecter',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 25.0,
-                                      fontWeight: FontWeight
-                                          .bold, // Style de police en gras
-                                      fontStyle: FontStyle
-                                          .italic, // Style d'écriture en italique
-                                      // Couleur du soulignement
-                                      decorationThickness:
-                                          2.0, // Épaisseur du soulignement
-                                      letterSpacing:
-                                          2.0, // Espacement entre les lettres
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      decorationThickness: 2.0,
+                                      letterSpacing: 2.0,
                                       shadows: [
                                         Shadow(
                                           color: Colors.grey,
                                           blurRadius: 3.0,
                                           offset: Offset(2.0, 2.0),
                                         ),
-                                      ], // Ombre du texte
+                                      ],
                                     ),
                                   ),
                                 ],

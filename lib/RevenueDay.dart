@@ -89,7 +89,7 @@ class MyRevenueState extends State<MyRevenue> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Earnings"),
+        title: const Text("Revenus"),
         centerTitle: true,
         backgroundColor: Colors.orange,
         leading: IconButton(
@@ -106,7 +106,7 @@ class MyRevenueState extends State<MyRevenue> {
         child: ListView(
           children: [
             ListTile(
-              title: Text('Day'),
+              title: Text('Jour'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -119,7 +119,7 @@ class MyRevenueState extends State<MyRevenue> {
               },
             ),
             ListTile(
-              title: Text('Week'),
+              title: Text('Semaine'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -132,7 +132,7 @@ class MyRevenueState extends State<MyRevenue> {
               },
             ),
             ListTile(
-              title: Text('Month'),
+              title: Text('Mois'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,

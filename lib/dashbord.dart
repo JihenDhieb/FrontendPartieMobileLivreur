@@ -9,11 +9,13 @@ import 'dart:convert';
 
 class dashbord extends StatefulWidget {
   final Map<String, dynamic> userData;
+
   dashbord(this.userData);
   @override
   _dashbordState createState() => _dashbordState();
 }
 
+double totlalFrais = 0.0;
 Future<int> _getDeliveredCount() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
@@ -70,6 +72,33 @@ Future<int> _getRevenueCount() async {
   }
 }
 
+Future<double> _gettotalFrais() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? id = prefs.getString('id');
+  final response = await http.get(
+    Uri.parse('http://192.168.1.26:8080/caisse/totalFrais/$id'),
+  );
+  if (response.statusCode == 200) {
+    totlalFrais = jsonDecode(response.body);
+    return totlalFrais;
+  } else {
+    throw Exception('Failed to get totalFrais');
+  }
+}
+
+Future<double> _getCommission() async {
+  _gettotalFrais();
+  final response = await http.get(
+    Uri.parse('http://192.168.1.26:8080/caisse/commission/$totlalFrais'),
+  );
+  if (response.statusCode == 200) {
+    double commission = jsonDecode(response.body);
+    return commission;
+  } else {
+    throw Exception('Failed to get commission');
+  }
+}
+
 class _dashbordState extends State<dashbord> {
   @override
   void initState() {
@@ -78,22 +107,24 @@ class _dashbordState extends State<dashbord> {
     _getCancelCount();
     _gettotalCount();
     _getRevenueCount();
+    _gettotalFrais();
+    _getCommission();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: Text('Tableau de bord'),
         backgroundColor: Colors.orange,
-        toolbarHeight: 80, // Augmenter la hauteur de l'AppBar à 80 pixels
+        toolbarHeight: 70, // Augmenter la hauteur de l'AppBar à 80 pixels
       ),
       drawer: Drawer(
         child: ListView(
           children: [
             ListTile(
               leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
+              title: Text('Tableau de bord'),
               onTap: () {
                 Navigator.pushReplacement(
                     context,
@@ -103,7 +134,7 @@ class _dashbordState extends State<dashbord> {
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
-              title: Text('My Profile'),
+              title: Text('Compte'),
               onTap: () {
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (_) => Compte(widget.userData)));
@@ -111,7 +142,7 @@ class _dashbordState extends State<dashbord> {
             ),
             ListTile(
               leading: Icon(Icons.local_shipping),
-              title: Text('My Delivery'),
+              title: Text('Ma livraison'),
               onTap: () {
                 Navigator.pushReplacement(
                     context,
@@ -122,7 +153,7 @@ class _dashbordState extends State<dashbord> {
             ),
             ListTile(
               leading: Icon(Icons.attach_money),
-              title: Text('Earnings'),
+              title: Text('Gains'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -136,7 +167,7 @@ class _dashbordState extends State<dashbord> {
             ),
             ListTile(
               leading: Icon(Icons.logout),
-              title: Text('Log Out'),
+              title: Text('Déconnexion'),
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 await Future.wait([
@@ -158,59 +189,60 @@ class _dashbordState extends State<dashbord> {
         child: GridView.count(
           crossAxisCount: 2,
           crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          mainAxisSpacing: 30,
           padding: EdgeInsets.all(10),
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  Container(
-                    color: Colors.green,
-                  ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.delivery_dining,
-                            size: 48,
-                            color: Colors.white,
+              child: Container(
+                  width: 180,
+                  height: 50,
+                  color: Colors.green,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.delivery_dining,
+                                size: 48,
+                                color: Colors.white,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Livraison terminée',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              FutureBuilder<int>(
+                                future: _getDeliveredCount(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    int deliveredCount = snapshot.data!;
+                                    return Text(
+                                      ' $deliveredCount',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Completed delivery',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          FutureBuilder<int>(
-                            future: _getDeliveredCount(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                int deliveredCount = snapshot.data!;
-                                return Text(
-                                  ' $deliveredCount',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                  ),
-                                );
-                              } else {
-                                return CircularProgressIndicator();
-                              }
-                            },
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
+                    ],
+                  )),
             ),
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
@@ -232,7 +264,7 @@ class _dashbordState extends State<dashbord> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Cancelled delivery',
+                            'Livraison annulée',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -283,7 +315,7 @@ class _dashbordState extends State<dashbord> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Total Collected',
+                            'Montant Total Collecté',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -314,7 +346,6 @@ class _dashbordState extends State<dashbord> {
                 ],
               ),
             ),
-
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Stack(
@@ -335,20 +366,20 @@ class _dashbordState extends State<dashbord> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Earnings',
+                            'Frais de livraision',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          FutureBuilder<int>(
-                            future: _getRevenueCount(),
+                          FutureBuilder<double>(
+                            future: _gettotalFrais(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                int revenueCount = snapshot.data!;
+                                double totalFrais = snapshot.data!;
                                 return Text(
-                                  ' $revenueCount',
+                                  ' $totalFrais',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -366,45 +397,96 @@ class _dashbordState extends State<dashbord> {
                 ],
               ),
             ),
-            // Définir la largeur souhaitée
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  Container(
+                    color: Colors.brown,
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.money_off,
+                            size: 48,
+                            color: Colors.white,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Commition',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          FutureBuilder<double>(
+                            future: _getCommission(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                double commission = snapshot.data!;
+                                return Text(
+                                  ' $commission',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                );
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              color: const Color.fromARGB(255, 243, 33, 222),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.money,
-                      size: 48,
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 8),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Sold',
-                          style: TextStyle(
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  Container(
+                    color: Color.fromARGB(255, 243, 33, 222),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.money_sharp,
+                            size: 48,
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        Text(
-                          widget.userData['sold'].toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                          SizedBox(height: 8),
+                          Text(
+                            'Solde',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                          Text(
+                            ' ${widget.userData['sold']}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -421,7 +503,12 @@ class _dashbordState extends State<dashbord> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => dashbord(widget.userData)));
+                  },
                   icon: Column(
                     children: [
                       Icon(Icons.dashboard, color: Colors.grey),

@@ -13,7 +13,7 @@ class LiveLocationPage extends StatelessWidget {
     _locationService.initState();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Live Location'),
+        title: Text('Localisation en direct'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {

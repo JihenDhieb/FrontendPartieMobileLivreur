@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart' as perm;
 
 class LocationService {
   Completer<GoogleMapController> _mapController = Completer();
@@ -12,13 +13,13 @@ class LocationService {
   Location _locationService = Location();
   Set<Marker> _markers = {};
 
-  void initState() {
-    startBackgroundService();
-    _getCurrentLocation();
+  Future<void> initState() async {
+    await startBackgroundService();
+    await _getCurrentLocation();
   }
 
-  void startBackgroundService() {
-    FlutterBackgroundService.initialize(onStart);
+  Future<void> startBackgroundService() async {
+    await FlutterBackgroundService.initialize(onStart);
   }
 
   void onStart() {
@@ -43,7 +44,7 @@ class LocationService {
     FlutterBackgroundService().sendData({'action': 'serviceRunning'});
   }
 
-  void _getCurrentLocation() async {
+  Future<void> _getCurrentLocation() async {
     LocationData location;
     try {
       location = await _locationService.getLocation();
@@ -55,6 +56,7 @@ class LocationService {
       _currentLocation = location;
       _updateCameraPosition();
     }
+    print(_currentLocation.latitude);
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -97,7 +99,6 @@ class LocationService {
       );
     }
     _submitForm();
-    print(_currentLocation.latitude);
   }
 
   Future<GoogleMapController> getMapController() {
@@ -108,8 +109,17 @@ class LocationService {
     return _markers;
   }
 
+  Future<bool> requestLocationPermission() async {
+    perm.PermissionStatus permission = await perm.Permission.location.request();
+    return permission.isGranted;
+  }
+
   void getCurrentLocation() {
     _getCurrentLocation();
+  }
+
+  void submitForm() {
+    _submitForm();
   }
 
   void onMapCreated(GoogleMapController controller) {

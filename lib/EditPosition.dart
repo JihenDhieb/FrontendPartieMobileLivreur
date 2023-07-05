@@ -85,7 +85,7 @@ class EditPositionState extends State<EditPosition> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Location'),
+        title: Text('Sélectionner lemplacement'),
         leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {

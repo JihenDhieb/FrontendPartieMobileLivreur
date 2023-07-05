@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:delivery/Edit.dart';
 import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,9 +7,7 @@ import 'LiveLocation.dart';
 class Compte extends StatefulWidget {
   late Map<dynamic, dynamic> imageProfile;
   final Map<String, dynamic> userData;
-  Compte(this.userData) {
-    imageProfile = userData['imageProfile'];
-  }
+  Compte(this.userData) {}
   @override
   _CompteState createState() => _CompteState();
 }
@@ -57,19 +54,12 @@ class _CompteState extends State<Compte> {
               right: 0,
               child: Column(
                 children: [
-                  Container(
-                    height: 180,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: MemoryImage(
-                            base64Decode(widget.imageProfile['bytes'])),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
                   SizedBox(height: 10),
+                  Icon(
+                    Icons.person,
+                    color: Colors.black,
+                    size: 190.0,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -166,7 +156,7 @@ class _CompteState extends State<Compte> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'FirstName: ${widget.userData['firstName']}',
+                                  'Nom: ${widget.userData['firstName']}',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 24,
@@ -186,7 +176,7 @@ class _CompteState extends State<Compte> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'MastName: ${widget.userData['lastName']}',
+                                  'Prénom: ${widget.userData['lastName']}',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 24,
@@ -206,7 +196,7 @@ class _CompteState extends State<Compte> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'Phone Number: ${widget.userData['phone']}',
+                                  'Téléphone: ${widget.userData['phone']}',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 24,
@@ -239,25 +229,6 @@ class _CompteState extends State<Compte> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                Edit(widget.userData)));
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            Colors.orange),
-                                  ),
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
                                 SizedBox(width: 10),
                                 ElevatedButton(
                                   onPressed: () {

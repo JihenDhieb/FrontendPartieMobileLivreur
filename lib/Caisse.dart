@@ -33,13 +33,10 @@ class CaisseState extends State<Caisse> {
 
     if (request.statusCode == 200) {
       final sharedPreferences = await SharedPreferences.getInstance();
-
       setState(() {
         CaisseData = json.decode(request.body);
         _getArticles(CaisseData["articles"], context);
       });
-
-      // Store the idCaisse value in local storage
       sharedPreferences.setString('idCaisse', widget.idCaisse);
     }
   }
@@ -91,7 +88,7 @@ class CaisseState extends State<Caisse> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Commande '),
+        title: Text('Détail de la commande '),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -126,7 +123,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'Information Client',
+                  'Informations Client',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -137,7 +134,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Address: ${CaisseData['address']}',
+                  'Adresse: ${CaisseData['address']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -147,7 +144,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Street Address: ${CaisseData['streetAddress']}',
+                  'Adresse de rue: ${CaisseData['streetAddress']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -182,7 +179,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Selected Time: ${CaisseData['selectedTime']}',
+                  'Heure sélectionnée : ${CaisseData['selectedTime']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -193,7 +190,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'Price',
+                  'Prix',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -204,7 +201,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Subtotal: ${CaisseData['subTotal']}',
+                  'Sous-total: ${CaisseData['subTotal']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -224,7 +221,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'Total Price: ${CaisseData['totalPrice']}',
+                  'Prix total: ${CaisseData['totalPrice']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -233,7 +230,7 @@ class CaisseState extends State<Caisse> {
               ),
               SizedBox(height: 16),
               Text(
-                'Information Vendor',
+                'Informations Vendeur',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -244,7 +241,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Name Vendor: ${page['title']}',
+                  'Nom du vendeur: ${page['title']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -254,7 +251,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Phone: ${page['phone']}',
+                  'Téléphone: ${page['phone']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -264,7 +261,7 @@ class CaisseState extends State<Caisse> {
               Container(
                 margin: EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Address: ${page['address']}',
+                  'Adresse: ${page['address']}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -277,7 +274,7 @@ class CaisseState extends State<Caisse> {
                   onPressed: () {
                     _SetStatutBeingdelivred();
                   },
-                  child: Text('BEING_DELIVERED'),
+                  child: Text('EN_COURS_DE_LIVRAISON'),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.orange, // Couleur orange
                     shadowColor: Colors.transparent,
@@ -291,7 +288,7 @@ class CaisseState extends State<Caisse> {
                   onPressed: () {
                     _SetStatutdelivred();
                   },
-                  child: Text('DELIVERED'),
+                  child: Text('LIVRÉE'),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.orange, // Couleur orange
                     shadowColor: Colors.transparent,

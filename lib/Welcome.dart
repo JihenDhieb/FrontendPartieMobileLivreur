@@ -1,13 +1,28 @@
+import 'package:delivery/LoginPage.dart';
 import 'package:flutter/material.dart';
-import 'LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:location/location.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({Key? key}) : super(key: key);
+
   @override
   _WelcomeState createState() => _WelcomeState();
 }
 
 class _WelcomeState extends State<Welcome> {
+  LocationData _currentLocation = LocationData.fromMap({});
+  Future<void> _submitForm() async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LoginPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,8 +41,7 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height / 2 -
-                    300, // Position verticale centrée
+                top: MediaQuery.of(context).size.height / 2 - 300,
                 left: 0,
                 right: 0,
                 child: Container(
@@ -35,8 +49,7 @@ class _WelcomeState extends State<Welcome> {
                   height: 400,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(
-                          'android/images/2.png'), // Remplacez par le chemin d'accès à votre image
+                      image: AssetImage('android/images/2.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -59,45 +72,36 @@ class _WelcomeState extends State<Welcome> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'Hello Delivery Partner',
+                            'Bonjour, partenaire de livraison',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 50.0,
-                              fontWeight:
-                                  FontWeight.bold, // Style de police en gras
-                              fontStyle: FontStyle
-                                  .italic, // Style d'écriture en italique
-                              // Couleur du soulignement
-                              decorationThickness:
-                                  2.0, // Épaisseur du soulignement
-                              letterSpacing:
-                                  2.0, // Espacement entre les lettres
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              decorationThickness: 2.0,
+                              letterSpacing: 2.0,
                               shadows: [
                                 Shadow(
                                   color: Colors.grey,
                                   blurRadius: 3.0,
                                   offset: Offset(2.0, 2.0),
                                 ),
-                              ], // Ombre du texte
+                              ],
                             ),
                           ),
                         ),
+                        SizedBox(height: 30),
                         Container(
-                          width: 250, // Largeur personnalisée
+                          width: 350,
                           height: 70,
-                          // Hauteur personnalisée
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30.0),
-                            color: Color(0xFFFF9800), // Couleur orange
+                            color: Color(0xFFFF9800),
                           ),
                           child: TextButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginPage()),
-                              );
+                              _submitForm(); // Call the form submission function
                             },
                             child: Padding(
                               padding:
@@ -105,29 +109,26 @@ class _WelcomeState extends State<Welcome> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.login, color: Colors.white),
+                                  Icon(Icons.location_on,
+                                      color: Colors
+                                          .white), // Changed the icon to location_on
                                   SizedBox(width: 5.0),
                                   Text(
-                                    'Login Now',
+                                    'Enter votre Position', // Changed the button text
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 25.0,
-                                      fontWeight: FontWeight
-                                          .bold, // Style de police en gras
-                                      fontStyle: FontStyle
-                                          .italic, // Style d'écriture en italique
-                                      // Couleur du soulignement
-                                      decorationThickness:
-                                          2.0, // Épaisseur du soulignement
-                                      letterSpacing:
-                                          2.0, // Espacement entre les lettres
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      decorationThickness: 2.0,
+                                      letterSpacing: 2.0,
                                       shadows: [
                                         Shadow(
                                           color: Colors.grey,
                                           blurRadius: 3.0,
                                           offset: Offset(2.0, 2.0),
                                         ),
-                                      ], // Ombre du texte
+                                      ],
                                     ),
                                   ),
                                 ],

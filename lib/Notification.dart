@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPage extends StatefulWidget {
   final String idCaisse;
-
   NotificationPage({required this.idCaisse});
   @override
   NotificationPageState createState() => NotificationPageState();
@@ -46,9 +45,7 @@ class NotificationPageState extends State<NotificationPage> {
       }
       final responce = await http
           .get(Uri.parse('http://192.168.1.26:8080/caisse/SetSold/$idCaisse1'));
-      if (request.statusCode == 200) {
-        print("yesss");
-      }
+      if (request.statusCode == 200) {}
     }
   }
 
@@ -60,7 +57,6 @@ class NotificationPageState extends State<NotificationPage> {
     if (!mounted) {
       return;
     }
-
     if (request.statusCode == 200) {
       setState(() {
         CaisseData = json.decode(request.body);

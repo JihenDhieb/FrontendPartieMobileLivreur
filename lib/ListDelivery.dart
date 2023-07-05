@@ -45,7 +45,7 @@ class ListDeliveryState extends State<ListDelivery> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Delivery List"),
+          title: Text("Liste de livraison"),
           backgroundColor: Colors.orange, // ajouter la couleur orange ici
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
@@ -121,7 +121,7 @@ class ListDeliveryState extends State<ListDelivery> {
             } else if (snapshot.hasError) {
               return Center(
                 child: Text(
-                  'Your List is empty',
+                  'Votre liste est vide',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,

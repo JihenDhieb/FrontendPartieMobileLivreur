@@ -42,26 +42,20 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
         print('Empty response body');
         return;
       }
-
       List<dynamic> responseData = json.decode(response.body);
-
       List<BarChartModel> barChartDataList = [];
-
       for (var data in responseData) {
         if (data.containsKey('revenue') && data.containsKey('date')) {
           dynamic revenue = data['revenue'];
           dynamic date = data['date'];
-
           DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
           double parsedRevenue = double.tryParse(revenue.toString()) ?? 0.0;
-
           BarChartModel barChartData = BarChartModel(parsedDate, parsedRevenue);
           barChartDataList.add(barChartData);
         } else {
           print('Invalid or missing "revenue" or "date" in the response');
         }
       }
-
       setState(() {
         data = barChartDataList;
       });
@@ -91,7 +85,7 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Earnings"),
+        title: const Text("Revenus"),
         centerTitle: true,
         backgroundColor: Colors.orange,
         leading: IconButton(
@@ -108,7 +102,7 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
         child: ListView(
           children: [
             ListTile(
-              title: Text('Day'),
+              title: Text('Jour'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -121,7 +115,7 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
               },
             ),
             ListTile(
-              title: Text('Week'),
+              title: Text('Semaine'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -134,7 +128,7 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
               },
             ),
             ListTile(
-              title: Text('Month'),
+              title: Text('Mois'),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
