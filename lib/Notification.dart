@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:delivery/Caisse.dart';
+import 'package:delivery/Welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Config.dart';
 
 class NotificationPage extends StatefulWidget {
   final String idCaisse;
@@ -23,7 +25,7 @@ class NotificationPageState extends State<NotificationPage> {
     if (CaisseData['idDelivery'] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Order taken by another Delivery guy!'),
+          content: Text('Il y a un autre livreur qui prend cette commande !'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),
@@ -33,34 +35,34 @@ class NotificationPageState extends State<NotificationPage> {
       String? id = prefs.getString('id');
       final String idCaisse1 = widget.idCaisse;
       final request = await http.get(Uri.parse(
-          'http://192.168.1.26:8080/caisse/addDeliveryToCaisse/$idCaisse1/$id'));
+          ApiUrls.baseUrl + '/caisse/addDeliveryToCaisse/$idCaisse1/$id'));
 
       if (!mounted) {
         return;
       }
 
       if (request.statusCode == 200) {
+        print('yesssss');
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (_) => Caisse(idCaisse: idCaisse1)));
       }
-      final responce = await http
-          .get(Uri.parse('http://192.168.1.26:8080/caisse/SetSold/$idCaisse1'));
-      if (request.statusCode == 200) {}
     }
   }
 
   Future<void> _openNotification(BuildContext context) async {
     final String idCaisse1 = widget.idCaisse;
-    final request = await http
-        .get(Uri.parse('http://192.168.1.26:8080/caisse/getCaisse/$idCaisse1'));
-
-    if (!mounted) {
-      return;
-    }
-    if (request.statusCode == 200) {
-      setState(() {
-        CaisseData = json.decode(request.body);
-      });
+    try {
+      final request = await http
+          .get(Uri.parse(ApiUrls.baseUrl + '/caisse/getCaisse/$idCaisse1'));
+      if (request.statusCode == 200) {
+        setState(() {
+          CaisseData = json.decode(request.body);
+        });
+      } else {
+        print('Request failed with status: ${request.statusCode}');
+      }
+    } catch (error) {
+      print('An error occurred: $error');
     }
   }
 
@@ -89,7 +91,10 @@ class NotificationPageState extends State<NotificationPage> {
             ),
             SizedBox(height: 20), // Espacement entre les boutons
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (_) => Welcome()));
+              },
               child: Text(
                 'Refuse Notification',
                 style: TextStyle(fontSize: 20.0),

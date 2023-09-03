@@ -3,6 +3,7 @@ import 'package:delivery/dashbord.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'LiveLocation.dart';
+import 'Config.dart';
 
 class Compte extends StatefulWidget {
   late Map<dynamic, dynamic> imageProfile;
@@ -23,7 +24,7 @@ class _CompteState extends State<Compte> {
   void toggleOnlineOffline() async {
     String id = widget.userData['id'];
     final response = await http.get(
-      Uri.parse('http://192.168.1.26:8080/User/modifyStatusDelivery/$id'),
+      Uri.parse(ApiUrls.baseUrl + '/User/modifyStatusDelivery/$id'),
     );
     if (response.statusCode == 200) {
       setState(() {
@@ -34,7 +35,17 @@ class _CompteState extends State<Compte> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => dashbord(widget.userData),
+            ),
+          );
+          return false;
+        },
+   child : Scaffold(
       body: Container(
         width: double.infinity,
         height: MediaQuery.of(context).size.height,
@@ -277,6 +288,6 @@ class _CompteState extends State<Compte> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

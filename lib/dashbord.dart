@@ -6,6 +6,7 @@ import 'ListDelivery.dart';
 import 'LoginPage.dart';
 import 'RevenueDay.dart';
 import 'dart:convert';
+import 'Config.dart';
 
 class dashbord extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -20,7 +21,7 @@ Future<int> _getDeliveredCount() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
   final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/$id/delivered-count'),
+    Uri.parse(ApiUrls.baseUrl + '/caisse/$id/delivered-count'),
   );
   if (response.statusCode == 200) {
     int deliveredCount = jsonDecode(response.body);
@@ -34,7 +35,7 @@ Future<int> _getCancelCount() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
   final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/$id/cancel-count'),
+    Uri.parse(ApiUrls.baseUrl + '/caisse/$id/cancel-count'),
   );
   if (response.statusCode == 200) {
     int cancelCount = jsonDecode(response.body);
@@ -48,7 +49,7 @@ Future<int> _gettotalCount() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
   final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/$id/caisses/count'),
+    Uri.parse(ApiUrls.baseUrl + '/caisse/$id/caisses/count'),
   );
   if (response.statusCode == 200) {
     int caisseCount = jsonDecode(response.body);
@@ -62,7 +63,7 @@ Future<int> _getRevenueCount() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
   final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/$id/revenue/total'),
+    Uri.parse(ApiUrls.baseUrl + '/caisse/$id/revenue/total'),
   );
   if (response.statusCode == 200) {
     int revenueCount = jsonDecode(response.body);
@@ -72,32 +73,38 @@ Future<int> _getRevenueCount() async {
   }
 }
 
-Future<double> _gettotalFrais() async {
+Future<double> _getTotalFrais() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? id = prefs.getString('id');
-  final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/totalFrais/$id'),
+
+  final totalFraisResponse = await http.get(
+    Uri.parse(ApiUrls.baseUrl + '/caisse/totalFrais/$id'),
   );
-  if (response.statusCode == 200) {
-    totlalFrais = jsonDecode(response.body);
-    return totlalFrais;
+
+  if (totalFraisResponse.statusCode == 200) {
+    double totalFrais = jsonDecode(totalFraisResponse.body);
+    return totalFrais;
   } else {
     throw Exception('Failed to get totalFrais');
   }
 }
 
-Future<double> _getCommission() async {
-  _gettotalFrais();
-  final response = await http.get(
-    Uri.parse('http://192.168.1.26:8080/caisse/commission/$totlalFrais'),
+Future<double> _getTotalCommision() async {
+  double totalFrais = await _getTotalFrais();
+
+  final commissionResponse = await http.get(
+    Uri.parse(ApiUrls.baseUrl + '/caisse/commission/$totalFrais'),
   );
-  if (response.statusCode == 200) {
-    double commission = jsonDecode(response.body);
+
+  if (commissionResponse.statusCode == 200) {
+    double commission = jsonDecode(commissionResponse.body);
     return commission;
   } else {
     throw Exception('Failed to get commission');
   }
 }
+
+double _totalCommissionAndFrais = 0.0;
 
 class _dashbordState extends State<dashbord> {
   @override
@@ -107,12 +114,44 @@ class _dashbordState extends State<dashbord> {
     _getCancelCount();
     _gettotalCount();
     _getRevenueCount();
-    _gettotalFrais();
-    _getCommission();
+    _getTotalFrais();
+    _getTotalCommision();
   }
+
+  bool calculated = false;
+  double? cachedCommission;
 
   @override
   Widget build(BuildContext context) {
+    // Your build function code
+
+    Future<double> _fetchCommissionAndFrais() async {
+      if (calculated) {
+        if (cachedCommission != null) {
+          return cachedCommission!;
+        }
+      }
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? id = prefs.getString('id');
+      final response = await http
+          .get(Uri.parse(ApiUrls.baseUrl + '/caisse/commission1/$id'));
+
+      if (response.statusCode == 200) {
+        calculated = true;
+        final commissionString = response.body;
+        try {
+          double commission1 = double.parse(commissionString);
+          cachedCommission = commission1;
+          return commission1;
+        } catch (e) {
+          throw Exception('Failed to parse commission value');
+        }
+      } else {
+        throw Exception('Failed to fetch commission and frais');
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Tableau de bord'),
@@ -374,7 +413,7 @@ class _dashbordState extends State<dashbord> {
                             ),
                           ),
                           FutureBuilder<double>(
-                            future: _gettotalFrais(),
+                            future: _getTotalFrais(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 double totalFrais = snapshot.data!;
@@ -417,7 +456,7 @@ class _dashbordState extends State<dashbord> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Commition',
+                            'Commission de livraision',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -425,7 +464,7 @@ class _dashbordState extends State<dashbord> {
                             ),
                           ),
                           FutureBuilder<double>(
-                            future: _getCommission(),
+                            future: _getTotalCommision(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 double commission = snapshot.data!;
@@ -453,7 +492,7 @@ class _dashbordState extends State<dashbord> {
               child: Stack(
                 children: [
                   Container(
-                    color: Color.fromARGB(255, 243, 33, 222),
+                    color: Colors.purpleAccent,
                   ),
                   Positioned.fill(
                     child: Align(
@@ -462,25 +501,40 @@ class _dashbordState extends State<dashbord> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.money_sharp,
+                            Icons.money_off_rounded,
                             size: 48,
                             color: Colors.white,
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Solde',
+                            'Commission totale ',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(
-                            ' ${widget.userData['sold']}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                            ),
+                          FutureBuilder<double>(
+                            future: _fetchCommissionAndFrais(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (snapshot.hasData) {
+                                double totalCommission = snapshot.data!;
+                                return Text(
+                                  '$totalCommission',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                );
+                              } else {
+                                return Text('No Data Available');
+                              }
+                            },
                           ),
                         ],
                       ),

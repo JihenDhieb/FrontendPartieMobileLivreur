@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'RevenueDay.dart';
+import 'Config.dart';
 
 class BarChartModel {
   final DateTime date;
@@ -34,7 +35,7 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
     final response = await http.get(
-      Uri.parse('http://192.168.1.26:8080/User/monthRevenue/$id'),
+      Uri.parse(ApiUrls.baseUrl + '/User/monthRevenue/$id'),
     );
 
     if (response.statusCode == 200) {
@@ -83,80 +84,90 @@ class MyRevenueMonthState extends State<MyRevenueMonth> {
         },
       ),
     ];
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Revenus"),
-        centerTitle: true,
-        backgroundColor: Colors.orange,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => dashbord(widget.userData)),
-            );
-          },
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            ListTile(
-              title: Text('Jour'),
-              onTap: () {
+    return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => dashbord(widget.userData),
+            ),
+          );
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Revenus"),
+            centerTitle: true,
+            backgroundColor: Colors.orange,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => MyRevenue(userData: {
-                      'revenueDates': widget.userData['revenueDates'],
-                    }),
-                  ),
+                  MaterialPageRoute(builder: (_) => dashbord(widget.userData)),
                 );
               },
             ),
-            ListTile(
-              title: Text('Semaine'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MyRevenueWeek(userData: {
-                      'revenueDates': widget.userData['revenueDates'],
-                    }),
+          ),
+          drawer: Drawer(
+            child: ListView(
+              children: [
+                ListTile(
+                  title: Text('Jour'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MyRevenue(userData: {
+                          'revenueDates': widget.userData['revenueDates'],
+                        }),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  title: Text('Semaine'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MyRevenueWeek(userData: {
+                          'revenueDates': widget.userData['revenueDates'],
+                        }),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  title: Text('Mois'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MyRevenueMonth(userData: {
+                          'revenueDates': widget.userData['revenueDates'],
+                        }),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                Expanded(
+                  child: charts.BarChart(
+                    series,
+                    animate: true,
                   ),
-                );
-              },
+                ),
+              ],
             ),
-            ListTile(
-              title: Text('Mois'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MyRevenueMonth(userData: {
-                      'revenueDates': widget.userData['revenueDates'],
-                    }),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Expanded(
-              child: charts.BarChart(
-                series,
-                animate: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }

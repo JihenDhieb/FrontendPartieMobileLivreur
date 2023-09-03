@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dashbord.dart';
 import 'LocationService.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'Config.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     final String email = _emailController.text;
     final String password = _passwordController.text;
     final response = await http.post(
-      Uri.parse('http://192.168.1.26:8080/api/auth/loginUser'),
+      Uri.parse(ApiUrls.baseUrl + '/api/auth/loginUser'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -58,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
       await _prefs.setString('token', token);
       FirebaseMessaging.instance.getToken().then((token) async {
         final response = await http.post(
-          Uri.parse('http://192.168.1.26:8080/notification/addDevice'),
+          Uri.parse(ApiUrls.baseUrl + '/notification/addDevice'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -69,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       });
       final userResponse = await http.get(
-        Uri.parse('http://192.168.1.26:8080/User/$id'),
+        Uri.parse(ApiUrls.baseUrl + '/User/$id'),
         headers: <String, String>{
           'Authorization': 'Bearer $token',
         },

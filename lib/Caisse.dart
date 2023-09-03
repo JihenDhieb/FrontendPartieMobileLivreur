@@ -4,6 +4,7 @@ import 'package:delivery/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'Config.dart';
 
 class Caisse extends StatefulWidget {
   final String idCaisse;
@@ -24,7 +25,7 @@ class CaisseState extends State<Caisse> {
   Future<void> _openNotification(BuildContext context) async {
     final String idCaisse1 = widget.idCaisse;
     final request = await http.get(
-      Uri.parse('http://192.168.1.26:8080/caisse/getCaisse/$idCaisse1'),
+      Uri.parse(ApiUrls.baseUrl + '/caisse/getCaisse/$idCaisse1'),
     );
 
     if (!mounted) {
@@ -48,7 +49,7 @@ class CaisseState extends State<Caisse> {
       return;
     }
     final response = await http.post(
-      Uri.parse('http://192.168.1.26:8080/caisse/getCaisseArticles'),
+      Uri.parse(ApiUrls.baseUrl + '/caisse/getCaisseArticles'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -65,7 +66,7 @@ class CaisseState extends State<Caisse> {
   Future<void> _SetStatutBeingdelivred() async {
     final String idCaisse1 = widget.idCaisse;
     final request = await http.get(Uri.parse(
-        'http://192.168.1.26:8080/caisse/SetStatutBeingdelivred/$idCaisse1'));
+        ApiUrls.baseUrl + '/caisse/SetStatutBeingdelivred/$idCaisse1'));
     if (request.statusCode == 200) {
       setState(() {
         _openNotification(context);
@@ -75,8 +76,8 @@ class CaisseState extends State<Caisse> {
 
   Future<void> _SetStatutdelivred() async {
     final String idCaisse1 = widget.idCaisse;
-    final request = await http.get(Uri.parse(
-        'http://192.168.1.26:8080/caisse/SetStatutdelivred/$idCaisse1'));
+    final request = await http.get(
+        Uri.parse(ApiUrls.baseUrl + '/caisse/SetStatutdelivred/$idCaisse1'));
     if (request.statusCode == 200) {
       setState(() {
         _openNotification(context);
@@ -86,220 +87,210 @@ class CaisseState extends State<Caisse> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Détail de la commande '),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => LoginPage()),
-            );
-          },
-        ),
-        backgroundColor: Colors.orange,
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(70),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    '${CaisseData['reference']}',
+    return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => LoginPage(),
+            ),
+          );
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Détail de la commande '),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                );
+              },
+            ),
+            backgroundColor: Colors.orange,
+          ),
+          body: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(70),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      child: Text(
+                        '${CaisseData['reference']}',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      'Informations Client',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Adresse: ${CaisseData['address']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Adresse de rue: ${CaisseData['streetAddress']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            String phoneNumber = CaisseData['phone'];
+                            launch('tel:$phoneNumber');
+                          },
+                          child: Icon(
+                            Icons.phone,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '${CaisseData['phone'][0]}${'*' * (CaisseData['phone'].length - 1)}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Heure sélectionnée : ${CaisseData['selectedTime']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      'Prix',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Sous-total: ${CaisseData['subTotal']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Informations Vendeur',
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'Informations Client',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Adresse: ${CaisseData['address']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Adresse de rue: ${CaisseData['streetAddress']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        String phoneNumber = CaisseData['phone'];
-                        launch('tel:$phoneNumber');
-                      },
-                      child: Icon(
-                        Icons.phone,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${CaisseData['phone'][0]}${'*' * (CaisseData['phone'].length - 1)}',
+                  SizedBox(height: 16),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Nom du vendeur: ${page['title']}',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Heure sélectionnée : ${CaisseData['selectedTime']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
                   ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'Prix',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Téléphone: ${page['phone']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Sous-total: ${CaisseData['subTotal']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Adresse: ${page['address']}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Frais: ${CaisseData['frais']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
+                  Visibility(
+                    visible: CaisseData['status'] == 'EN_PREPARATION',
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _SetStatutBeingdelivred();
+                      },
+                      child: Text('EN_COURS_DE_LIVRAISON'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange, // Couleur orange
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                      ),
+                    ),
                   ),
-                ),
+                  Visibility(
+                    visible: CaisseData['status'] == 'EN_COURS_DE_LIVRAISON',
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _SetStatutdelivred();
+                      },
+                      child: Text('LIVRÉE'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange, // Couleur orange
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                      ),
+                    ),
+                  )
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'Prix total: ${CaisseData['totalPrice']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Informations Vendeur',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 16),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Nom du vendeur: ${page['title']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Téléphone: ${page['phone']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Adresse: ${page['address']}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: CaisseData['status'] == 'IN_PREPARATION',
-                child: ElevatedButton(
-                  onPressed: () {
-                    _SetStatutBeingdelivred();
-                  },
-                  child: Text('EN_COURS_DE_LIVRAISON'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.orange, // Couleur orange
-                    shadowColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: CaisseData['status'] == 'BEING_DELIVERED',
-                child: ElevatedButton(
-                  onPressed: () {
-                    _SetStatutdelivred();
-                  },
-                  child: Text('LIVRÉE'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.orange, // Couleur orange
-                    shadowColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                ),
-              )
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

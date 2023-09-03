@@ -6,6 +6,7 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart' as perm;
+import 'Config.dart';
 
 class LocationService {
   Completer<GoogleMapController> _mapController = Completer();
@@ -67,7 +68,7 @@ class LocationService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
     final response = await http.put(
-      Uri.parse('http://192.168.1.26:8080/User/editDeliveryLatLong'),
+      Uri.parse(ApiUrls.baseUrl + '/User/editDeliveryLatLong'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

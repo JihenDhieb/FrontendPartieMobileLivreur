@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Config.dart';
 
 class EditPosition extends StatefulWidget {
   dynamic longitude;
@@ -32,7 +33,7 @@ class EditPositionState extends State<EditPosition> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? id = prefs.getString('id');
     final response = await http.put(
-      Uri.parse('http://192.168.1.26:8080/User/editDeliveryLatLong'),
+      Uri.parse(ApiUrls.baseUrl + '/User/editDeliveryLatLong'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -83,41 +84,51 @@ class EditPositionState extends State<EditPosition> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Sélectionner lemplacement'),
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => LoginPage(),
-                ),
-              );
-            }),
-        backgroundColor: Colors.orange,
-      ),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        onTap: _onMapTap,
-        markers: _markers,
-        initialCameraPosition: CameraPosition(
-          target: LatLng(36.8065, 10.1815),
-          zoom: 15,
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_selectedLatLng != null) {
-            widget.longitude = _selectedLatLng.longitude;
-            widget.latitude = _selectedLatLng.latitude;
-            _submitForm();
-          }
+    return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => LoginPage(),
+            ),
+          );
+          return false;
         },
-        backgroundColor: Colors.orange,
-        child: Icon(Icons.save),
-      ),
-    );
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Sélectionner lemplacement'),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LoginPage(),
+                    ),
+                  );
+                }),
+            backgroundColor: Colors.orange,
+          ),
+          body: GoogleMap(
+            onMapCreated: _onMapCreated,
+            onTap: _onMapTap,
+            markers: _markers,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(36.8065, 10.1815),
+              zoom: 15,
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              if (_selectedLatLng != null) {
+                widget.longitude = _selectedLatLng.longitude;
+                widget.latitude = _selectedLatLng.latitude;
+                _submitForm();
+              }
+            },
+            backgroundColor: Colors.orange,
+            child: Icon(Icons.save),
+          ),
+        ));
   }
 }

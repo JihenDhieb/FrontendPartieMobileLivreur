@@ -57,6 +57,13 @@ class MyApp extends StatelessWidget {
           message.notification!.title!,
           message.notification!.body!,
         );
+
+        String value =
+            message.data["Value"]; // Access the value of the "Value" key
+        if (value == "Commande") {
+          MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
+              arguments: message.data["idCaisse"]);
+        }
       }
     });
 
@@ -64,8 +71,12 @@ class MyApp extends StatelessWidget {
       if (message.notification != null) {
         print(
             "Opened app from terminated state: ${message.notification!.title}");
-        MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
-            arguments: message.data["idCaisse"]);
+        String value =
+            message.data["Value"]; // Access the value of the "Value" key
+        if (value == "Commande") {
+          MyApp.navigatorKey.currentState?.pushReplacementNamed('/notification',
+              arguments: message.data["idCaisse"]);
+        }
       }
     });
 
